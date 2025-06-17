@@ -21,5 +21,31 @@ type OrderDTO struct {
 	TotalAmount         *float64   `json:"total_amount,omitempty"`
 	CreatedAt           time.Time  `json:"created_at"`
 	UpdatedAt           time.Time  `json:"updated_at"`
+	Address      *Address   `json:"addresses"`
+	Service      *Service   `json:"services"`
+	Profile      *Profile   `json:"profiles"`
 }
+
+type Address struct {
+	AddressLine1  string  `json:"address_line1"`
+	AddressLine2  string  `json:"address_line2"`
+	City          string  `json:"city"`
+	State         string  `json:"state"`
+	HouseBuilding string  `json:"house_building"`
+	Area          string  `json:"area"`
+	PostalCode    string  `json:"postal_code"`
+	Latitude      float64 `json:"latitude"`
+	Longitude     float64 `json:"longitude"`
+}
+
+type Service struct {
+	Name        string `json:"name"`
+}
+
+type Profile struct {
+	Username     string `json:"username"`
+	MobileNumber string `json:"mobile_number"`
+}
+
+
 
