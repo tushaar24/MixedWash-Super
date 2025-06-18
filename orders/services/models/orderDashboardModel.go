@@ -8,6 +8,7 @@ type OrderDashboardModel struct{
 	UserName string `json:"user_name"`
 	Service string `json:"service"`
 	MobileNumber string `json:"phone_number"`
+	EmailAddress string `json:"email_address"`
 	Address string `json:"address"`
 	Coordinates string `json:"coordinates"`
 	PickupDateTime *PickupDateTime `json:"pickup_date_time"`

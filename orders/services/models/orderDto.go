@@ -49,6 +49,7 @@ type Service struct {
 type Profile struct {
 	Username     string `json:"username"`
 	MobileNumber string `json:"mobile_number"`
+	EmailAddress string `json:"email"`
 }
 
 type DateAndTime struct {
@@ -65,6 +66,12 @@ func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
 	var phoneNumber string
 	if o.Profile != nil {
 		phoneNumber = o.Profile.MobileNumber
+	}
+
+	var emailAddress string
+
+	if o.Profile != nil {
+		emailAddress = o.Profile.EmailAddress
 	}
 
 	// --- Service name -------------------------------------------------------
@@ -138,6 +145,7 @@ func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
 		Coordinates:      coordinates,
 		PickupDateTime:   pickupDT,
 		DeliveryDateTime: deliveryDT,
+		EmailAddress: 	  emailAddress,
 	}
 }
 
