@@ -4,6 +4,8 @@ import (
 	"time"
 	"github.com/google/uuid"
 	"github.com/tushaar24/mixedWash-backend/utils"
+	"fmt"
+	"strings"
 )
 
 type OrderDTO struct {
@@ -24,6 +26,8 @@ type OrderDTO struct {
 	Address      *Address   `json:"addresses"`
 	Service      *Service   `json:"services"`
 	Profile      *Profile   `json:"profiles"`
+	PickupTime   *DateAndTime `json:"pickup_time"`
+	DeliveryTime *DateAndTime `json:"delivery_time"`
 }
 
 type Address struct {
@@ -45,6 +49,89 @@ type Service struct {
 type Profile struct {
 	Username     string `json:"username"`
 	MobileNumber string `json:"mobile_number"`
+}
+
+type DateAndTime struct {
+	Label string `json:"label"`
+}
+
+func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
+	// --- User name ----------------------------------------------------------
+	var userName string
+	if o.Profile != nil {
+		userName = o.Profile.Username
+	}
+
+	// --- Service name -------------------------------------------------------
+	var serviceName string
+	if o.Service != nil {
+		serviceName = o.Service.Name
+	}
+
+	// --- Address & coordinates ---------------------------------------------
+	var (
+		addressStr  string
+		coordinates string
+	)
+	if o.Address != nil {
+		a := o.Address
+
+		// Build a human-readable address (skip empty parts)
+		parts := []string{}
+		if a.HouseBuilding != "" {
+			parts = append(parts, a.HouseBuilding)
+		}
+		if a.AddressLine1 != "" {
+			parts = append(parts, a.AddressLine1)
+		}
+		if a.AddressLine2 != "" {
+			parts = append(parts, a.AddressLine2)
+		}
+		if a.Area != "" {
+			parts = append(parts, a.Area)
+		}
+		if a.City != "" {
+			parts = append(parts, a.City)
+		}
+		if a.State != "" {
+			parts = append(parts, a.State)
+		}
+		if a.PostalCode != "" {
+			parts = append(parts, a.PostalCode)
+		}
+		addressStr  = strings.Join(parts, ", ")
+		coordinates = fmt.Sprintf("%f,%f", a.Latitude, a.Longitude)
+	}
+
+	// --- Pick-up & delivery date-time ---------------------------------------
+	var pickupDT *PickupDateTime
+	pickupDate, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", o.PickupDate.String())
+	if o.PickupTime != nil {
+		pickupDT = &PickupDateTime{
+			PickUpTime: o.PickupTime.Label,
+			PickUpDate: pickupDate.Format("02/01/2006"),
+		}
+	}
+
+	var deliveryDT *DeliveryDateTime
+	deliveryDate, _ := time.Parse("2006-01-02 15:04:05 -0700 MST", o.DeliveryDate.String())
+	if o.DeliveryTime != nil {
+		deliveryDT = &DeliveryDateTime{
+			DeliveryTime: o.DeliveryTime.Label,
+			DeliveryDate: deliveryDate.Format("02/01/2006"),
+		}
+	}
+
+	// --- Assemble the dashboard model --------------------------------------
+	return OrderDashboardModel{
+		OrderId:          o.ID.String(),
+		UserName:         userName,
+		Service:          serviceName,
+		Address:          addressStr,
+		Coordinates:      coordinates,
+		PickupDateTime:   pickupDT,
+		DeliveryDateTime: deliveryDT,
+	}
 }
 
 
