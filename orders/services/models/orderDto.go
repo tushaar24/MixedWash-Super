@@ -62,11 +62,17 @@ func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
 		userName = o.Profile.Username
 	}
 
+	var phoneNumber string
+	if o.Profile != nil {
+		phoneNumber = o.Profile.MobileNumber
+	}
+
 	// --- Service name -------------------------------------------------------
 	var serviceName string
 	if o.Service != nil {
 		serviceName = o.Service.Name
 	}
+
 
 	// --- Address & coordinates ---------------------------------------------
 	var (
@@ -127,6 +133,7 @@ func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
 		OrderId:          o.ID.String(),
 		UserName:         userName,
 		Service:          serviceName,
+		MobileNumber: 	  phoneNumber,
 		Address:          addressStr,
 		Coordinates:      coordinates,
 		PickupDateTime:   pickupDT,
