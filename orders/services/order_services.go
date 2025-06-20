@@ -76,4 +76,23 @@ func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error){
 	return orders, nil
 }
 
+func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO , error) {
+
+	var customer *models.CustomerByPhoneDTO
+
+	_, err := client.
+		From("profiles").
+		Select("id, username",  "", false).
+		Eq("mobile_number", phoneNumber).
+		Single().
+		ExecuteTo(&customer)
+
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return nil, err
+	}
+
+	return customer, nil
+}
+
 

@@ -48,6 +48,11 @@ func RegisterRoute(router *gin.Engine) {
 
 		controller.CreateOrderAdmin(ctx, order)
 	})
+
+	router.GET("/user/getUser/:phone_number", func(ctx *gin.Context) {
+		phoneNumber := ctx.Param("phone_number")
+		controller.GetCustomerByPhone(ctx,phoneNumber)
+	})
 }
 
 

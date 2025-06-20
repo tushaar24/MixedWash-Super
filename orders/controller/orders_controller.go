@@ -54,6 +54,17 @@ func CreateOrderAdmin(context *gin.Context, order models.OrderCreationDTO) {
 	context.JSON(http.StatusOK, "")
 }
 
+func GetCustomerByPhone(context *gin.Context, phoneNumber string) {
+
+	customer, err := services.GetCustomerByPhoneNo(phoneNumber)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+	}
+
+	context.JSON(http.StatusOK, customer)
+}
+
 
 
 
