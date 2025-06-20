@@ -17,7 +17,7 @@ func FetchAllOrders() ([]models.OrderDTO, error){
 	_, err := client.
 		From("orders").
 		Select(selectColumns, "", false).
-		ExecuteTo(&orders)   // fills &orders, returns row-count
+		ExecuteTo(&orders)
 
 	if err != nil {
 		log.Fatalf("query error: %v", err)
@@ -75,4 +75,5 @@ func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error){
 
 	return orders, nil
 }
+
 
