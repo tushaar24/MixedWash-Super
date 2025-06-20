@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/tushaar24/mixedWash-backend/orders/services/models"
 	"github.com/tushaar24/mixedWash-backend/orders/controller"
 )
 
@@ -20,6 +21,15 @@ func RegisterRoute(router *gin.Engine) {
 		}
 
 		controller.GetOrdersByUserId(ctx, userId)
+	})
+
+	router.POST("/customer/create", func(ctx *gin.Context) {
+		var customer models.CustomerCreationDTO
+		if err := ctx.ShouldBindJSON(&customer); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		controller.CreateCustomer(ctx,customer)
 	})
 }
 

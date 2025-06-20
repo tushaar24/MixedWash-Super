@@ -24,6 +24,24 @@ func FetchAllOrders() ([]models.OrderDTO, error){
 }
 
 
+func CreateCustomer(customerCreationDTO models.CustomerCreationDTO) error{
+	log.Printf("customer: %v", customerCreationDTO)
+	_, _, err := client.
+		From("temp_customers").
+		Insert(customerCreationDTO, false, "", "", "").
+		Execute()
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func CreateOrderAdmin(){
+
+}
+
 func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error){
 	var orders []models.OrderDTO
 	_, err := client.

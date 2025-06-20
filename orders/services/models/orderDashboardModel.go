@@ -1,26 +1,25 @@
 package models
 
-import(
-)
+import ()
 
-type OrderDashboardModel struct{
-	OrderId string `json:"order_id"`
-	UserName string `json:"user_name"`
-	Service string `json:"service"`
-	MobileNumber string `json:"phone_number"`
-	EmailAddress string `json:"email_address"`
-	Address string `json:"address"`
-	Coordinates string `json:"coordinates"`
-	PickupDateTime *PickupDateTime `json:"pickup_date_time"`
+type OrderDashboardModel struct {
+	OrderId          string            `json:"order_id"`
+	UserName         string            `json:"user_name"`
+	Service          string            `json:"service"`
+	MobileNumber     string            `json:"phone_number"`
+	EmailAddress     string            `json:"email_address"`
+	Address          string            `json:"address"`
+	Coordinates      string            `json:"coordinates"`
+	PickupDateTime   *PickupDateTime   `json:"pickup_date_time"`
 	DeliveryDateTime *DeliveryDateTime `json:"delivery_date_time"`
 }
 
-type PickupDateTime struct{
+type PickupDateTime struct {
 	PickUpTime string `json:"pickup_time"`
 	PickUpDate string `json:"pickup_date"`
 }
 
-type DeliveryDateTime struct{
+type DeliveryDateTime struct {
 	DeliveryTime string `json:"pickup_time"`
 	DeliveryDate string `json:"pickup_date"`
 }
