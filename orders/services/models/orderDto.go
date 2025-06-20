@@ -9,7 +9,7 @@ import (
 )
 
 type OrderDTO struct {
-	ID                uuid.UUID      `json:"id"`
+	ID                  uuid.UUID      `json:"id"`
 	UserID              uuid.UUID      `json:"user_id"`
 	AddressID           uuid.UUID      `json:"address_id"`
 	ServiceID           uuid.UUID      `json:"service_id"`
