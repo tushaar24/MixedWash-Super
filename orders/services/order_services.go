@@ -75,23 +75,47 @@ func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error) {
 	return orders, nil
 }
 
-func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, error) {
+func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, *models.TempCustomerByPhoneDTO, error) {
 
-	var customer *models.CustomerByPhoneDTO
+	var customerList []models.CustomerByPhoneDTO
+	var tempCustomerList []models.TempCustomerByPhoneDTO
 
 	_, err := client.
 		From("profiles").
 		Select("id, username", "", false).
 		Eq("mobile_number", phoneNumber).
-		Single().
-		ExecuteTo(&customer)
+		ExecuteTo(&customerList)
 
 	if err != nil {
-		log.Fatalf("query error: %v", err)
-		return nil, err
+		log.Fatalf("query error 1: %v", err)
+		return nil, nil, err
 	}
 
-	return customer, nil
+	if len(customerList) == 0 {
+
+		_, err1 := client.
+			From("temp_customers").
+			Select("id, customer_name", "", false).
+			Eq("customer_phone_number", phoneNumber).
+			ExecuteTo(&tempCustomerList)
+
+		if err1 != nil {
+			log.Fatalf("query error 2: %v", err1)
+			return nil, nil, err1
+		}
+
+		if len(tempCustomerList) != 0 {
+			var tempCustomer = tempCustomerList[0]
+			return nil, &tempCustomer, nil
+		}
+
+		return nil, nil, nil
+
+	}
+
+	var customer = customerList[0]
+
+	return &customer, nil, nil
 }
 
 func GetCustomerAddresses(userId string) ([]models.CustomerAddressByUserIdDTO, error) {
