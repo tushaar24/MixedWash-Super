@@ -80,9 +80,17 @@ func GetCustomerAddresses(context *gin.Context, userId string) {
 	}
 
 	context.JSON(http.StatusOK, consiseAddresses)
-
 }
 
+func AddAddressAdmin(context *gin.Context, address models.AddAddressAdminDTO) {
 
+	err := services.AddAddressAdmin(address)
 
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+	}
+
+	context.JSON(http.StatusOK, "")
+
+}
 

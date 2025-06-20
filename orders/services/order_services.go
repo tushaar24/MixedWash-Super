@@ -112,3 +112,18 @@ func GetCustomerAddresses(userId string) ([]models.CustomerAddressByUserIdDTO, e
 	return addresses, nil
 
 }
+
+func AddAddressAdmin(address models.AddAddressAdminDTO) error {
+
+	_, _, err := client.
+		From("addresses").
+		Insert(address, false, "", "", "").
+		Execute()
+
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return err
+	}
+
+	return nil
+}

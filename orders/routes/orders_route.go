@@ -59,6 +59,20 @@ func RegisterRoute(router *gin.Engine) {
 		userId := ctx.Query("user_id")
 		controller.GetCustomerAddresses(ctx, userId)
 	})
+
+
+	router.POST("addresses/admin/add", func(ctx *gin.Context) {
+
+		var address models.AddAddressAdminDTO
+
+		if err := ctx.ShouldBindJSON(&address); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		controller.AddAddressAdmin(ctx, address)
+
+	})
 }
 
 
