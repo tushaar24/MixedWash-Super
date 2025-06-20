@@ -2,10 +2,11 @@ package routes
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/tushaar24/mixedWash-backend/orders/services/models"
 	"github.com/tushaar24/mixedWash-backend/orders/controller"
+	"github.com/tushaar24/mixedWash-backend/orders/services/models"
 )
 
 func RegisterRoute(router *gin.Engine) {
@@ -52,6 +53,11 @@ func RegisterRoute(router *gin.Engine) {
 	router.GET("/user/getUser/:phone_number", func(ctx *gin.Context) {
 		phoneNumber := ctx.Param("phone_number")
 		controller.GetCustomerByPhone(ctx,phoneNumber)
+	})
+
+	router.GET("user/addresses/getAddress", func(ctx *gin.Context) {
+		userId := ctx.Query("user_id")
+		controller.GetCustomerAddresses(ctx, userId)
 	})
 }
 

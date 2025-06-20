@@ -65,6 +65,23 @@ func GetCustomerByPhone(context *gin.Context, phoneNumber string) {
 	context.JSON(http.StatusOK, customer)
 }
 
+func GetCustomerAddresses(context *gin.Context, userId string) {
+
+	addresses, err := services.GetCustomerAddresses(userId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+	}
+
+	var consiseAddresses []models.CustomerAddressesByUserIdModel
+
+	for _, address := range addresses {
+		consiseAddresses = append(consiseAddresses, address.ToModel())
+	}
+
+	context.JSON(http.StatusOK, consiseAddresses)
+
+}
 
 
 
