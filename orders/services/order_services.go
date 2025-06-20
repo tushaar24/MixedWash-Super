@@ -1,10 +1,10 @@
 package services
 
 import (
+	"log"
 	"github.com/google/uuid"
 	"github.com/tushaar24/mixedWash-backend/config"
 	"github.com/tushaar24/mixedWash-backend/orders/services/models"
-	"log"
 )
 
 var client = config.GetSupabaseClient()
@@ -150,4 +150,48 @@ func AddAddressAdmin(address models.AddAddressAdminDTO) error {
 	}
 
 	return nil
+}
+
+func GetAdminOrderCreationScreen() (*models.OrderCreationScreenDTO, error) {
+
+	var services []models.OrderCreationScreenServicesDTO
+
+	_, servicesError := client.
+		From("services").
+		Select("id, name", "", false).
+		ExecuteTo(&services)
+
+	if servicesError != nil {
+		log.Fatalf("services query error: %v", servicesError)
+		return nil, servicesError
+	}
+
+	var pickupTimeSlot []models.OrderCreationScreenPickupSlotDTO
+	var deliveryTimeSlot []models.OrderCreationScreenDeliverySlotDTO
+
+	_, pickupTimeSlotError := client.
+		From("time_slots").
+		Select("id, label", "", false).
+		ExecuteTo(&pickupTimeSlot)
+
+	if pickupTimeSlotError != nil {
+		log.Fatalf("pickupslot query error: %v", pickupTimeSlotError)
+		return nil, pickupTimeSlotError
+	}
+
+	_, deliveryTimeSlotError := client.
+		From("time_slots").
+		Select("id, label", "", false).
+		ExecuteTo(&deliveryTimeSlot)
+
+	if deliveryTimeSlotError != nil {
+		log.Fatalf("deliveryslot query error: %v", deliveryTimeSlotError)
+		return nil, deliveryTimeSlotError
+	}
+
+	return &models.OrderCreationScreenDTO{
+		Services:     services,
+		PickupSlot:   pickupTimeSlot,
+		DeliverySlot: deliveryTimeSlot,
+	}, nil
 }

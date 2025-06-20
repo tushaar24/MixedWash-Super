@@ -73,6 +73,8 @@ func RegisterRoute(router *gin.Engine) {
 		controller.AddAddressAdmin(ctx, address)
 
 	})
+
+	router.GET("admin/order/screenResponse", controller.GetAdminOrderCreationScreen)
 }
 
 

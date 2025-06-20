@@ -98,3 +98,14 @@ func AddAddressAdmin(context *gin.Context, address models.AddAddressAdminDTO) {
 	context.JSON(http.StatusOK, "")
 
 }
+
+func GetAdminOrderCreationScreen (context *gin.Context) {
+
+	screenDTO, err := services.GetAdminOrderCreationScreen()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+	}
+
+	context.JSON(http.StatusOK, screenDTO)
+}
