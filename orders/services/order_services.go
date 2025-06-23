@@ -158,7 +158,7 @@ func GetCustomerAddresses(userId string) ([]models.CustomerAddressByUserIdDTO, e
 func AddAddressAdmin(address models.AddAddressAdminDTO) error {
 
 	_, _, err := client.
-		From("addresses").
+		From("addresses_temp").
 		Insert(address, false, "", "", "").
 		Execute()
 
