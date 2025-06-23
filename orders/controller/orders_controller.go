@@ -35,13 +35,13 @@ func GetOrdersByUserId(context *gin.Context, userId uuid.UUID) {
 }
 
 func CreateCustomer(context *gin.Context, customer models.CustomerCreationDTO) {
-	err := services.CreateCustomer(customer)
+	id, err := services.CreateCustomer(customer)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
 	}
 
-	context.JSON(http.StatusOK, "")
+	context.JSON(http.StatusOK, id)
 }
 
 func CreateOrderAdmin(context *gin.Context, order models.OrderCreationDTO) {

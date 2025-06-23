@@ -1,10 +1,12 @@
 package services
 
 import (
-	"log"
 	"github.com/google/uuid"
 	"github.com/tushaar24/mixedWash-backend/config"
 	"github.com/tushaar24/mixedWash-backend/orders/services/models"
+	"log"
+	"fmt"
+	"encoding/json"
 )
 
 var client = config.GetSupabaseClient()
@@ -27,19 +29,35 @@ func FetchAllOrders() ([]models.OrderDTO, error) {
 	return orders, nil
 }
 
-func CreateCustomer(customerCreationDTO models.CustomerCreationDTO) error {
-
-	_, _, err := client.
+func CreateCustomer(customerCreationDTO models.CustomerCreationDTO) (string, error) {
+	data, _, err := client.
 		From("temp_customers").
 		Insert(customerCreationDTO, false, "", "", "").
 		Execute()
 
 	if err != nil {
-		log.Fatalf("query error: %v", err)
-		return err
+		log.Printf("query error: %v", err)
+		return "0", err
 	}
 
-	return nil
+	// Define a struct to match the returned row (with at least the ID field)
+	type InsertedCustomer struct {
+		ID string `json:"id"`
+	}
+
+	var inserted []InsertedCustomer
+
+	err = json.Unmarshal(data, &inserted)
+	if err != nil {
+		log.Printf("unmarshal error: %v", err)
+		return "0", err
+	}
+
+	if len(inserted) == 0 {
+		return "0", fmt.Errorf("no row returned after insert")
+	}
+
+	return inserted[0].ID, nil
 }
 
 func CreateOrderAdmin(order models.OrderCreationDTO) error {
@@ -56,7 +74,6 @@ func CreateOrderAdmin(order models.OrderCreationDTO) error {
 
 	return nil
 }
-
 
 func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error) {
 
