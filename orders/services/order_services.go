@@ -1,17 +1,19 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/tushaar24/mixedWash-backend/config"
 	"github.com/tushaar24/mixedWash-backend/orders/services/models"
 	"log"
-	"fmt"
-	"encoding/json"
 )
 
 var client = config.GetSupabaseClient()
 
 func FetchAllOrders() ([]models.OrderDTO, error) {
+
+	// handle orders_temp
 
 	const selectColumns = `*,profiles:user_id(username,mobile_number, email),delivery_time:time_slots!delivery_slot_id(label),pickup_time:time_slots!pickup_slot_id(label),addresses:address_id(address_line1,address_line2,city,state,house_building,area,postal_code,latitude,longitude),services:service_id(name)`
 	var orders []models.OrderDTO
@@ -62,20 +64,51 @@ func CreateCustomer(customerCreationDTO models.CustomerCreationDTO) (string, err
 
 func CreateOrderAdmin(order models.OrderCreationDTO) error {
 
-	_, _, err := client.
-		From("orders").
-		Insert(order, false, "", "", "").
-		Execute()
+	var userId []UserId
+
+	_, err := client.
+		From("temp_customers").
+		Select("id", "", false).
+		Eq("id", order.UserID.String()).
+		ExecuteTo(&userId)
 
 	if err != nil {
 		log.Fatal("query error: ", err)
 		return err
 	}
 
+	if len(userId) != 0 {
+
+		_, _, err := client.
+			From("orders_temp").
+			Insert(order, false, "", "", "").
+			Execute()
+
+		if err != nil {
+			log.Fatal("query error: ", err)
+			return err
+		}
+
+	} else {
+
+		_, _, err := client.
+			From("orders").
+			Insert(order, false, "", "", "").
+			Execute()
+
+		if err != nil {
+			log.Fatal("query error: ", err)
+			return err
+		}
+
+	}
+
 	return nil
 }
 
 func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error) {
+
+	// Handle orders_temp
 
 	var orders []models.OrderDTO
 
@@ -93,7 +126,7 @@ func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error) {
 	return orders, nil
 }
 
-func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, *models.TempCustomerByPhoneDTO, error) {
+func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, error) {
 
 	var customerList []models.CustomerByPhoneDTO
 	var tempCustomerList []models.TempCustomerByPhoneDTO
@@ -106,7 +139,7 @@ func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, *mode
 
 	if err != nil {
 		log.Fatalf("query error 1: %v", err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	if len(customerList) == 0 {
@@ -119,36 +152,69 @@ func GetCustomerByPhoneNo(phoneNumber string) (*models.CustomerByPhoneDTO, *mode
 
 		if err1 != nil {
 			log.Fatalf("query error 2: %v", err1)
-			return nil, nil, err1
+			return nil, err1
 		}
 
 		if len(tempCustomerList) != 0 {
 			var tempCustomer = tempCustomerList[0]
-			return nil, &tempCustomer, nil
+			var cus = models.CustomerByPhoneDTO{
+				CustomerId:   tempCustomer.CustomerID,
+				CustomerName: tempCustomer.CustomerName,
+			}
+			return &cus, nil
 		}
 
-		return nil, nil, nil
+		return nil, nil
 
 	}
 
 	var customer = customerList[0]
 
-	return &customer, nil, nil
+	return &customer, nil
 }
 
 func GetCustomerAddresses(userId string) ([]models.CustomerAddressByUserIdDTO, error) {
 
 	var addresses []models.CustomerAddressByUserIdDTO
 
+	var userIds []UserId
+
 	_, err := client.
-		From("addresses").
-		Select("id, address_line1, address_line2, city, state, house_building, area, postal_code", "", false).
-		Eq("user_id", userId).
-		ExecuteTo(&addresses)
+		From("temp_customers").
+		Select("id", "", false).
+		Eq("id", userId).
+		ExecuteTo(&userIds)
 
 	if err != nil {
 		log.Fatalf("query error: %v", err)
 		return nil, err
+	}
+
+	if len(userIds) != 0 {
+
+		_, err := client.
+			From("addresses_temp").
+			Select("id, address_line1, address_line2, city, state, house_building, area, postal_code", "", false).
+			Eq("user_id", userId).
+			ExecuteTo(&addresses)
+
+		if err != nil {
+			log.Fatalf("query error: %v", err)
+			return nil, err
+		}
+
+
+	} else {
+		_, err := client.
+			From("addresses").
+			Select("id, address_line1, address_line2, city, state, house_building, area, postal_code", "", false).
+			Eq("user_id", userId).
+			ExecuteTo(&addresses)
+
+		if err != nil {
+			log.Fatalf("query error: %v", err)
+			return nil, err
+		}
 	}
 
 	return addresses, nil
@@ -212,4 +278,8 @@ func GetAdminOrderCreationScreen() (*models.OrderCreationScreenDTO, error) {
 		PickupSlot:   pickupTimeSlot,
 		DeliverySlot: deliveryTimeSlot,
 	}, nil
+}
+
+type UserId struct {
+	UserId string `json:"id"`
 }
