@@ -13,10 +13,10 @@ var client = config.GetSupabaseClient()
 
 func FetchAllOrders() ([]models.OrderDTO, error) {
 
-	// handle orders_temp
-
 	const selectColumns = `*,profiles:user_id(username,mobile_number, email),delivery_time:time_slots!delivery_slot_id(label),pickup_time:time_slots!pickup_slot_id(label),addresses:address_id(address_line1,address_line2,city,state,house_building,area,postal_code,latitude,longitude),services:service_id(name)`
+	const selectColumnsTemp = `*,temp_customers:user_id(customer_name,customer_phone_number, customer_email_address),delivery_time:time_slots!delivery_slot_id(label),pickup_time:time_slots!pickup_slot_id(label),addresses_temp!address_id(address_line1,address_line2,city,state,house_building,area,postal_code,latitude,longitude),services!service_id(name)`
 	var orders []models.OrderDTO
+	var tempOrders []models.TempOrderDTO
 
 	_, err := client.
 		From("orders").
@@ -26,6 +26,22 @@ func FetchAllOrders() ([]models.OrderDTO, error) {
 	if err != nil {
 		log.Fatalf("query error: %v", err)
 		return nil, err
+	}
+
+	_, err1 := client.
+		From("orders_temp").
+		Select(selectColumnsTemp, "", false).
+		ExecuteTo(&tempOrders)
+
+	if err1 != nil {
+		log.Fatalf("query error: %v", err1)
+		return nil, err1
+	}
+
+
+	for _, tempOrder := range tempOrders  {
+		newOrder := tempOrder.ToOrderDTO()
+		orders = append(orders, newOrder)
 	}
 
 	return orders, nil
@@ -108,19 +124,37 @@ func CreateOrderAdmin(order models.OrderCreationDTO) error {
 
 func GetAllOrderOfUser(userId uuid.UUID) ([]models.OrderDTO, error) {
 
-	// Handle orders_temp
-
+	const selectColumns = `*,profiles:user_id(username,mobile_number, email),delivery_time:time_slots!delivery_slot_id(label),pickup_time:time_slots!pickup_slot_id(label),addresses:address_id(address_line1,address_line2,city,state,house_building,area,postal_code,latitude,longitude),services:service_id(name)`
+	const selectColumnsTemp = `*,temp_customers:user_id(customer_name,customer_phone_number, customer_email_address),delivery_time:time_slots!delivery_slot_id(label),pickup_time:time_slots!pickup_slot_id(label),addresses_temp!address_id(address_line1,address_line2,city,state,house_building,area,postal_code,latitude,longitude),services!service_id(name)`
 	var orders []models.OrderDTO
+	var tempOrders []models.TempOrderDTO
 
 	_, err := client.
 		From("orders").
-		Select("*", "", false).
+		Select(selectColumns, "", false).
 		Eq("user_id", userId.String()).
-		ExecuteTo(&orders) // fills &orders, returns row-count
+		ExecuteTo(&orders)
 
 	if err != nil {
 		log.Fatalf("query error: %v", err)
 		return nil, err
+	}
+
+	_, err1 := client.
+		From("orders_temp").
+		Select(selectColumnsTemp, "", false).
+		Eq("user_id", userId.String()).
+		ExecuteTo(&tempOrders)
+
+	if err1 != nil {
+		log.Fatalf("query error: %v", err1)
+		return nil, err1
+	}
+
+
+	for _, tempOrder := range tempOrders  {
+		newOrder := tempOrder.ToOrderDTO()
+		orders = append(orders, newOrder)
 	}
 
 	return orders, nil
