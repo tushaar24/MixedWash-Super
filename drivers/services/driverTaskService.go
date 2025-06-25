@@ -6,8 +6,8 @@ import (
 	serviceModels "github.com/tushaar24/mixedWash-backend/orders/services/models"
 	"github.com/tushaar24/mixedWash-backend/utils"
 	"log"
-	"time"
 	"slices"
+	"time"
 )
 
 var client = config.GetSupabaseClient()
@@ -182,7 +182,6 @@ func GetTodayTask() ([]models.DriverTasksDTO, error) {
 		return nil, insertTasksError
 	}
 
-
 	_, todayTaskError := client.
 		From(utils.DRIVER_TASK_TABLE).
 		Select("*", "", false).
@@ -196,3 +195,57 @@ func GetTodayTask() ([]models.DriverTasksDTO, error) {
 	return todaysTask, nil
 
 }
+
+func GetDrivers() ([]models.DriverDTO, error) {
+
+	var drivers []models.DriverDTO
+
+	_, err := client.
+		From(utils.DRIVER_TABLE).
+		Select("id, name, phone_number, salary", "", false).
+		ExecuteTo(&drivers)
+
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return nil, err
+	}
+
+	return drivers, nil
+}
+
+func UpdateDriver(driverId string, taskId string) error {
+
+	_, _, err := client.
+		From(utils.DRIVER_TASK_TABLE).
+		Update(map[string]interface{}{
+			"driver_id": driverId,
+		}, "minimal", "").
+		Eq("id", taskId).
+		Execute()
+
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func UpdateDriverTaskStatus(taskId string, status string) error {
+
+	_, _,err := client.
+	From(utils.DRIVER_TASK_TABLE).
+	Update(map[string]interface{}{
+			"status": status,
+		}, "minimal", "").
+	Eq("id", taskId).
+	Execute()
+
+	if err != nil {
+		log.Fatalf("query error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
