@@ -6,9 +6,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/tushaar24/mixedWash-backend/orders/controller"
 	"github.com/tushaar24/mixedWash-backend/orders/services/models"
+	driverController "github.com/tushaar24/mixedWash-backend/drivers/controllers"
 )
 
 func RegisterRoute(router *gin.Engine) {
+
+	router.GET("/task", driverController.GetTodaysTasks)
 
 	router.GET("/orders", controller.FetchAllOrders)
 

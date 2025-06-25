@@ -69,6 +69,40 @@ type TempCustomer struct {
 	CustomerEmailAddress string `json:"customer_email_address"`
 }
 
+type TempOrderTaskDTO struct {
+	ID                  string         `json:"id"`
+	UserID              string         `json:"user_id"`
+	AddressID           string         `json:"address_id"`
+	ServiceID           string         `json:"service_id"`
+	PickupDate          utils.DateOnly `json:"pickup_date"`
+	PickupSlotID        string         `json:"pickup_slot_id"`
+	DeliveryDate        utils.DateOnly `json:"delivery_date"`
+	DeliverySlotID      string         `json:"delivery_slot_id"`
+	SpecialInstructions *string        `json:"special_instructions,omitempty"`
+	EstimatedWeight     *float64       `json:"estimated_weight,omitempty"`
+	Status              string         `json:"status"`
+	TotalAmount         *float64       `json:"total_amount,omitempty"`
+	CreatedAt           time.Time      `json:"created_at"`
+	UpdatedAt           time.Time      `json:"updated_at"`
+}
+
+type OrderTaskDTO struct {
+	ID                  string         `json:"id"`
+	UserID              string         `json:"user_id"`
+	AddressID           string         `json:"address_id"`
+	ServiceID           string         `json:"service_id"`
+	PickupDate          utils.DateOnly `json:"pickup_date"`
+	PickupSlotID        string         `json:"pickup_slot_id"`
+	DeliveryDate        utils.DateOnly `json:"delivery_date"`
+	DeliverySlotID      string         `json:"delivery_slot_id"`
+	SpecialInstructions *string        `json:"special_instructions,omitempty"`
+	EstimatedWeight     *float64       `json:"estimated_weight,omitempty"`
+	Status              string         `json:"status"`
+	TotalAmount         *float64       `json:"total_amount,omitempty"`
+	CreatedAt           time.Time      `json:"created_at"`
+	UpdatedAt           time.Time      `json:"updated_at"`
+}
+
 type OrderDTO struct {
 	ID                  uuid.UUID      `json:"id"`
 	UserID              uuid.UUID      `json:"user_id"`
@@ -208,5 +242,3 @@ func (o OrderDTO) ConvertToOrderDashboardModel() OrderDashboardModel {
 		EmailAddress:     emailAddress,
 	}
 }
-
-
