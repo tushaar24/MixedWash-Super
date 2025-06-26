@@ -11,33 +11,17 @@ type DriverTasksDTO struct {
 	DriverId       string `json:"driver_id"`
 	Status         string `json:"status"`
 	TypeTask       string `json:"task_type"`
+	TaskPriority   int8   `json:"task_prioritY"`
 }
 
 type DriverTaskResponseDTO struct {
-	Id       string          `json:"id"`
-	Customer *models.Profile `json:"customer"`
-	Address  *models.Address `json:"address"`
-	Status   string          `json:"status"`
-	TaskType string          `json:"task_type"`
-	DriverId string          `json:"driver"`
-}
-
-type DriverTaskCustomerResponseDTO struct {
-	Username     string `json:"username"`
-	MobileNumber string `json:"mobile_number"`
-	EmailAddress string `json:"email"`
-}
-
-type DriverTaskAddressResponseDTO struct {
-	AddressLine1  string  `json:"address_line1"`
-	AddressLine2  string  `json:"address_line2"`
-	City          string  `json:"city"`
-	State         string  `json:"state"`
-	HouseBuilding string  `json:"house_building"`
-	Area          string  `json:"area"`
-	PostalCode    string  `json:"postal_code"`
-	Latitude      float64 `json:"latitude"`
-	Longitude     float64 `json:"longitude"`
+	Id           string          `json:"id"`
+	Customer     *models.Profile `json:"customer"`
+	Address      *models.Address `json:"address"`
+	Status       string          `json:"status"`
+	TaskType     string          `json:"task_type"`
+	DriverId     string          `json:"driver"`
+	TaskPriority int8            `json:"task_priority"`
 }
 
 type CreateDriverTaskDTO struct {

@@ -1,14 +1,14 @@
 package services
 
 import (
-	"log"
-	"slices"
-	"time"
 	"github.com/tushaar24/mixedWash-backend/config"
 	"github.com/tushaar24/mixedWash-backend/drivers/models"
 	"github.com/tushaar24/mixedWash-backend/orders/services"
 	serviceModels "github.com/tushaar24/mixedWash-backend/orders/services/models"
 	"github.com/tushaar24/mixedWash-backend/utils"
+	"log"
+	"slices"
+	"time"
 )
 
 var client = config.GetSupabaseClient()
@@ -207,12 +207,13 @@ func GetTodayTask() ([]models.DriverTaskResponseDTO, error) {
 		orderDetail := orderDetails[0]
 
 		orderDetailResponse := models.DriverTaskResponseDTO{
-			Id:       task.Id,
-			Customer: orderDetail.Profile,
-			Address:  orderDetail.Address,
-			Status:   task.Status,
-			TaskType: task.TypeTask,
-			DriverId: task.DriverId,
+			Id:           task.Id,
+			Customer:     orderDetail.Profile,
+			Address:      orderDetail.Address,
+			Status:       task.Status,
+			TaskType:     task.TypeTask,
+			DriverId:     task.DriverId,
+			TaskPriority: task.TaskPriority,
 		}
 
 		todaysTaskResponse = append(todaysTaskResponse, orderDetailResponse)
@@ -223,6 +224,7 @@ func GetTodayTask() ([]models.DriverTaskResponseDTO, error) {
 }
 
 func GetDrivers() ([]models.DriverDTO, error) {
+
 
 	var drivers []models.DriverDTO
 
@@ -241,10 +243,25 @@ func GetDrivers() ([]models.DriverDTO, error) {
 
 func UpdateDriver(driverId string, taskId string) error {
 
+	var todaysTask []models.DriverTaskResponseDTO
+
+	todaysTask, _ = GetTodayTask()
+
+	var maxPriority int8
+
+
+	for _, task := range todaysTask {
+
+		if task.DriverId == driverId {
+			maxPriority = max(maxPriority, task.TaskPriority)
+		}
+	}
+
 	_, _, err := client.
 		From(utils.DRIVER_TASK_TABLE).
 		Update(map[string]interface{}{
 			"driver_id": driverId,
+			"task_priority": maxPriority,
 		}, "minimal", "").
 		Eq("id", taskId).
 		Execute()
