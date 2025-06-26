@@ -1,13 +1,14 @@
 package services
 
 import (
-	"github.com/tushaar24/mixedWash-backend/config"
-	"github.com/tushaar24/mixedWash-backend/drivers/models"
-	serviceModels "github.com/tushaar24/mixedWash-backend/orders/services/models"
-	"github.com/tushaar24/mixedWash-backend/utils"
 	"log"
 	"slices"
 	"time"
+	"github.com/tushaar24/mixedWash-backend/config"
+	"github.com/tushaar24/mixedWash-backend/drivers/models"
+	"github.com/tushaar24/mixedWash-backend/orders/services"
+	serviceModels "github.com/tushaar24/mixedWash-backend/orders/services/models"
+	"github.com/tushaar24/mixedWash-backend/utils"
 )
 
 var client = config.GetSupabaseClient()
@@ -29,11 +30,12 @@ func getAllTasks() ([]models.DriverTasksDTO, error) {
 	return tasks, nil
 }
 
-func GetTodayTask() ([]models.DriverTasksDTO, error) {
+func GetTodayTask() ([]models.DriverTaskResponseDTO, error) {
 
 	var tasks []models.CreateDriverTaskDTO
 	var currentTasks, currentTasksError = getAllTasks()
 	var todaysTask []models.DriverTasksDTO
+	var todaysTaskResponse []models.DriverTaskResponseDTO
 
 	loc, _ := time.LoadLocation("Asia/Kolkata")
 	todayStr := time.Now().In(loc).Format("2006-01-02")
@@ -192,7 +194,31 @@ func GetTodayTask() ([]models.DriverTasksDTO, error) {
 		return nil, insertTasksError
 	}
 
-	return todaysTask, nil
+	for _, task := range todaysTask {
+
+		var orderDetails []serviceModels.OrderDTO
+
+		if task.OrderId != "" {
+			orderDetails, _ = services.GetOrdersByOrderId(task.OrderId)
+		} else {
+			orderDetails, _ = services.GetOrdersByOrderId(task.TempOrderId)
+		}
+
+		orderDetail := orderDetails[0]
+
+		orderDetailResponse := models.DriverTaskResponseDTO{
+			Id:       task.Id,
+			Customer: orderDetail.Profile,
+			Address:  orderDetail.Address,
+			Status:   task.Status,
+			TaskType: task.TypeTask,
+			DriverId: task.DriverId,
+		}
+
+		todaysTaskResponse = append(todaysTaskResponse, orderDetailResponse)
+	}
+
+	return todaysTaskResponse, nil
 
 }
 
@@ -233,13 +259,13 @@ func UpdateDriver(driverId string, taskId string) error {
 
 func UpdateDriverTaskStatus(taskId string, status string) error {
 
-	_, _,err := client.
-	From(utils.DRIVER_TASK_TABLE).
-	Update(map[string]interface{}{
+	_, _, err := client.
+		From(utils.DRIVER_TASK_TABLE).
+		Update(map[string]interface{}{
 			"status": status,
 		}, "minimal", "").
-	Eq("id", taskId).
-	Execute()
+		Eq("id", taskId).
+		Execute()
 
 	if err != nil {
 		log.Fatalf("query error: %v", err)
@@ -248,4 +274,3 @@ func UpdateDriverTaskStatus(taskId string, status string) error {
 
 	return nil
 }
-
