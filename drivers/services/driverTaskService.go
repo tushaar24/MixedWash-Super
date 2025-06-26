@@ -257,6 +257,8 @@ func UpdateDriver(driverId string, taskId string) error {
 		}
 	}
 
+	maxPriority = maxPriority + 1
+
 	_, _, err := client.
 		From(utils.DRIVER_TASK_TABLE).
 		Update(map[string]interface{}{
